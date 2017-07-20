@@ -9,13 +9,16 @@
   remote_user: "{{ user | mandatory }}"
   vars_files:
     - group_vars/env.yml
+  tasks:
+    - debug: msg="Installing {{ cs_release }} on {{ inventory_hostname }}"
+
 
   roles:
     - common
-    - enable-ssh-root
+#    - enable-ssh-root
     - nfs_server
     - nfs_client
     - mysql
-    - cloudstack-node
+#    - cloudstack-node
     - cloudstack-manager
 

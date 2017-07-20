@@ -24,7 +24,7 @@
    - 'cloud ALL =NOPASSWD : /bin/chmod, /bin/cp, /bin/mkdir, /bin/mount, /bin/umount, /usr/bin/keytool'
   
 - name: CloudStack Database setup
-  command: /usr/bin/cloudstack-setup-databases cloud:{{ database_cloud_password }}@localhost --deploy-as=root:{{ database_root_password }} -e file -m {{ database_cloud_password }} -k {{ database_cloud_password }}
+  command: /usr/bin/cloudstack-setup-databases cloud:{{ database_cloud_password }}@localhost --deploy-as=root:{{ database_root_password }} -i {{ inventory_hostname }} 
 
 - name: Change Session timeout to 4 hours (for my comfort)
   lineinfile: dest=/etc/cloudstack/management/web.xml regexp='<session-timeout>30</session-timeout>' line='<session-timeout>14400</session-timeout>'
@@ -33,13 +33,19 @@
   file: path=/tmpmnt state=directory recurse=yes
 
 - name: CloudStack mount secondary storage
-  command: mount -t nfs {{ nfs_secondary_storage_host }}:/export/secondary /tmpmnt  
+  mount: 
+    name: /tmpmnt  
+    src: "{{ nfs_secondary_storage_host }}:/export/secondary"
+    fstype: nfs
+    state: present
 
 - name: CloudStack Install system vm template
   command: /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /tmpmnt -u {{ url_systemvm_template }} -h kvm -s {{ database_cloud_password }} -F
 
 - name: CloudStack umount secondary storage
-  command: umount /tmpmnt
+  mount: 
+    name: /tmpmnt  
+    state: unmounted
 
 - name: Remove tmpmnt directory
   file: path=/tmpmnt state=absent

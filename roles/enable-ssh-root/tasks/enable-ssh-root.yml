@@ -20,7 +20,7 @@
   when: host_enable_ssh_direct_root
 
 - name: "Restart sshd. (use command module instead of service module as a workaround of a bug in Ansible < 2.0)"
-  command: service ssh restart
-  #service: name=ssh state=restarted
+  # command: service ssh restart
+  service: name=ssh state=restarted
   when: host_enable_ssh_direct_root
 
